@@ -22,10 +22,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         String token = resolveToken(request);
+        // 로그 추가: 요청 경로와 토큰 존재 여부 확인
+        System.out.println("Request URI: " + request.getRequestURI());
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println("인증 성공: " + authentication.getName() + ", 권한: " + authentication.getAuthorities());
+        } else {
+            System.out.println("인증 실패 또는 토큰 없음");
         }
         filterChain.doFilter(request, response);
     }

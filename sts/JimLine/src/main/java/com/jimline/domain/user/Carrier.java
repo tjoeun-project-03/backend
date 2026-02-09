@@ -36,8 +36,8 @@ public class Carrier {
     private String carNum;
     private String carReg;
     private String license;
-    private int freezer;
-    private int accepted; // 승인 여부 (0:대기, 1:승인)
+    private Integer freezer;
+    private Integer accepted; // 승인 여부 (0:대기, 1:승인)
     private Double rating;
     private String car;
     

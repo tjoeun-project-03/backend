@@ -49,7 +49,7 @@ public class User {
     private String corpReg;
 
     @Builder.Default
-    private int banned = 0;
+    private Integer banned = 0;
 
     // 생성 시 자동으로 날짜 주입
     @PrePersist

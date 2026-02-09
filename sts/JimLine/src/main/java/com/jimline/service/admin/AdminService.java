@@ -6,8 +6,11 @@ import org.springframework.stereotype.Service;
 
 import com.jimline.domain.user.Carrier;
 import com.jimline.dto.admin.CarrierAcceptionResponse;
+import com.jimline.repository.admin.AdminRepository;
 import com.jimline.repository.user.CarrierRepository;
+import com.jimline.repository.user.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminService {
 
+	private final AdminRepository adminRepository;
     private final CarrierRepository carrierRepository;
+    private final UserRepository userRepository;
 
     // 1. 승인 대기 중인 차주 수 조회
     @Transactional
@@ -39,5 +44,16 @@ public class AdminService {
         
         carrier.approve(); // 승인 완료 상태로 변경
         // 별도의 save 없이도 @Transactional에 의해 더티 체킹으로 업데이트됩니다.
+    }
+    
+    public void rejectCarrier(String carrierId) {
+        Carrier carrier = adminRepository.findById(carrierId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 차주를 찾을 수 없습니다."));
+
+        // 1. 차주 정보 삭제
+        adminRepository.delete(carrier);
+        
+        // 2. 만약 User 계정도 함께 삭제해야 한다면 (연관관계에 따라 자동 삭제 설정이 안 된 경우)
+        userRepository.delete(carrier.getUser());
     }
 }

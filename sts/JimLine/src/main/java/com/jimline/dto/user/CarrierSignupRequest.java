@@ -15,5 +15,5 @@ public record CarrierSignupRequest(
 	    CarType carType, 
 	    String license, 
 	    String carReg, 
-	    int freezer
+	    Integer freezer
 	) {}
