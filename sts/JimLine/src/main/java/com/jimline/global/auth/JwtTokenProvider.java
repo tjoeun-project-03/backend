@@ -1,24 +1,25 @@
 package com.jimline.global.auth;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.stream.Collectors;
+import com.jimline.global.security.CustomUserDetails;
+import com.jimline.global.service.CustomUserDetailsService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -26,27 +27,31 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessTokenValidity;
+    private final CustomUserDetailsService customUserDetailsService;
 
     public JwtTokenProvider(
             @Value("${jimline.jwt.secret}") String secretKey,
-            @Value("${jimline.jwt.access-exp-seconds}") long accessTokenValidity) {
+            @Value("${jimline.jwt.access-exp-seconds}") long accessTokenValidity,
+            CustomUserDetailsService customUserDetailsService) {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidity = accessTokenValidity * 1000; // 초 단위를 밀리초로 변환
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     // 토큰 생성 및 검증 로직은 이전과 동일 (key와 accessTokenValidity 변수 사용)
     public String createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    	CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = String.valueOf(userDetails.getUser().getUserId()); // ID 추출
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.accessTokenValidity);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authorities)
+                .setSubject(userId) // Subject에 ID 저장
+                .claim("auth", authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.joining(",")))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
@@ -61,17 +66,14 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token) // parseClaimsJws 대신 parseSignedClaims
                 .getPayload(); // getBody() 대신 getPayload()
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .filter(auth->!auth.trim().isEmpty())
-                        .map(auth->{
-                        	String role = auth.startsWith("ROLE_") ? auth : "ROLE_"+ auth;
-                        	return new SimpleGrantedAuthority(role);
-                        })
-                        .collect(Collectors.toList());
+     // 1. 토큰에서 사용자 식별값(Email 등) 추출
+        String email = claims.getSubject();
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        // 2. DB에서 실제 유저 정보를 포함한 CustomUserDetails 가져오기
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+
+        // 3. 인증 객체 생성 시 userDetails 전달
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
     // 3. 토큰 유효성 검증
