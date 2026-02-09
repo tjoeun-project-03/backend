@@ -1,5 +1,7 @@
 package com.jimline.global.security;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.jimline.global.auth.JwtAuthenticationFilter;
 import com.jimline.global.auth.JwtTokenProvider;
@@ -32,6 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
         // 1. CSRF, Form Login, Http Basic 모두 비활성화 (람다 방식)
+		.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
@@ -59,4 +65,30 @@ public class SecurityConfig {
 
 		return http.build();
     }
+	
+	@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // 1. 허용할 Origin (프론트엔드 주소)
+        configuration.addAllowedOrigin("http://localhost:3000"); // 리액트 기본 포트
+        configuration.addAllowedOrigin("http://localhost:5173"); // Vite 기본 포트
+        
+        // 2. 허용할 HTTP Method
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        
+        // 3. 허용할 헤더
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
+        
+        // 4. 자격 증명 허용 (Cookie 등 사용 시 필수)
+        configuration.setAllowCredentials(true);
+        
+        // 5. 프리플라이트(Preflight) 캐싱 시간 (초 단위)
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 적용
+        return source;
+    }
 }
+
