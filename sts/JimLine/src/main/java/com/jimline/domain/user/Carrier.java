@@ -40,4 +40,8 @@ public class Carrier {
     private int accepted; // 승인 여부 (0:대기, 1:승인)
     private Double rating;
     private String car;
+    
+	public void approve() {
+		this.accepted = 1;
+	}
 }

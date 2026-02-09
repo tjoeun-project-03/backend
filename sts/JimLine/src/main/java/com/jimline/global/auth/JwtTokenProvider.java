@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${jimline.jwt.secret}") String secretKey,
             @Value("${jimline.jwt.access-exp-seconds}") long accessTokenValidity) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidity = accessTokenValidity * 1000; // 초 단위를 밀리초로 변환
     }
@@ -62,7 +63,11 @@ public class JwtTokenProvider {
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
+                        .filter(auth->!auth.trim().isEmpty())
+                        .map(auth->{
+                        	String role = auth.startsWith("ROLE_") ? auth : "ROLE_"+ auth;
+                        	return new SimpleGrantedAuthority(role);
+                        })
                         .collect(Collectors.toList());
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);

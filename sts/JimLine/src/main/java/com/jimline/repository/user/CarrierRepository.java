@@ -1,9 +1,18 @@
 package com.jimline.repository.user;
 
-import com.jimline.domain.user.Carrier;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import com.jimline.domain.user.Carrier;
 
 @Repository
 public interface CarrierRepository extends JpaRepository<Carrier, String> {
+	
+	long countByAccepted(int accepted);
+	
+	@Query("select c from Carrier c join fetch c.user where c.accepted = :accepted")
+	List<Carrier> findAllByAcceptedWithUser(int accepted);
 }
