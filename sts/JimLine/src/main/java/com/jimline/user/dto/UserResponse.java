@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 public class UserResponse {
     private String userId;
-    private Integer banned;      // 정지 여부
+    private LocalDateTime banned;      // 정지 여부
     private String corpReg;      // 사업자 등록 번호
     private String email;
     private String phone;
@@ -22,7 +22,7 @@ public class UserResponse {
     public static UserResponse from(User user) {
         return UserResponse.builder()
                 .userId(user.getUserId())
-                .banned(user.getBanned())
+                .banned(user.getBanUntil())
                 .corpReg(user.getCorpReg())
                 .email(user.getEmail())
                 .phone(user.getPhone())

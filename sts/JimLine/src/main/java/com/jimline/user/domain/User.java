@@ -48,8 +48,18 @@ public class User {
     @Column(name = "corp_reg")
     private String corpReg;
 
-    @Builder.Default
-    private Integer banned = 0;
+    private LocalDateTime banUntil;
+    
+    // 제재여부확인
+    public boolean isBanned() {
+        if (this.banUntil == null) return false;
+        return LocalDateTime.now().isBefore(this.banUntil);
+    }
+    
+    // 제재 기간 업데이트 (null을 넣으면 즉시 해제)
+    public void updateBanStatus(LocalDateTime banUntil) {
+        this.banUntil = banUntil;
+    }
 
     // 생성 시 자동으로 날짜 주입
     @PrePersist

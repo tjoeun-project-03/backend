@@ -1,5 +1,6 @@
 package com.jimline.global.service;
 
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다: " + id));
+        
+        if (user.isBanned()) {
+            throw new LockedException("해당 계정은 " + user.getBanUntil() + "까지 이용이 제한되었습니다.");
+        }
         
         return new CustomUserDetails(user);
     }
