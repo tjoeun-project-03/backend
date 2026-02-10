@@ -35,10 +35,9 @@ public class UserController {
         return ResponseEntity.ok(profileService.getShipperDetail(userDetails.getUser()));
     }
 
-    // 3. 관리자 전용 대시보드 데이터 (시스템 상태, 미처리 알림 등)
+    // 3. 공용 기본 사용자 프로필 (아이디, 이메일, 이름 등)
     @GetMapping("/me")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> getAdminDashboard(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(profileService.getAdminDetail(userDetails.getUser()));
+    public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(profileService.getProfile(userDetails.getUser()));
     }
 }

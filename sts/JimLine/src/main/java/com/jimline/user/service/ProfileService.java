@@ -32,7 +32,7 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("화주 정보를 찾을 수 없습니다."));
     }
 
-    public UserResponse getAdminDetail(User user) {
+    public UserResponse getProfile(User user) {
         // 관리자는 별도 테이블이 없다면 공통 UserResponse 반환
         return UserResponse.from(user);
     }
