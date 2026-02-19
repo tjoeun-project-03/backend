@@ -2,15 +2,14 @@ package com.jimline.report.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.util.Streamable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import com.jimline.report.domain.PenaltyType;
 import com.jimline.report.domain.Report;
 import com.jimline.report.domain.ReportStatus;
-import com.jimline.user.domain.User;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 	// Reporter 내의 userId 필드 참조
@@ -23,5 +22,10 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     List<Report> findByReporter_UserIdOrderByCreateAtDesc(String userId);
 
-    List<Report> findByStatusAndEndDateGreaterThan(ReportStatus reportStatus, LocalDateTime now);
+    @Query("SELECT r FROM Report r WHERE r.status = :status AND (r.endDate > :now OR r.penalty = :warningType)")
+    List<Report> findActiveBansAndWarnings(
+            @Param("status") ReportStatus status, 
+            @Param("now") LocalDateTime now, 
+            @Param("warningType") PenaltyType warningType
+    );
 }
