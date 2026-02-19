@@ -2,6 +2,7 @@ package com.jimline.report.dto;
 
 import java.time.LocalDateTime;
 
+import com.jimline.report.domain.PenaltyType;
 import com.jimline.report.domain.ReportStatus;
 
 public record ReportResponse(
@@ -12,7 +13,8 @@ public record ReportResponse(
 	    String reportedUserName,
 	    String reason,
 	    String content,
+		PenaltyType penalty,
 	    ReportStatus status,
 	    LocalDateTime banUntil, // 제재가 있다면 언제까지인지
 	    LocalDateTime createdAt
-	) {}
+) {}
