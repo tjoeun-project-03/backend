@@ -2,11 +2,11 @@ package com.jimline.report.controller;
 
 import java.util.List;
 
-import com.jimline.user.dto.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jimline.global.security.CustomUserDetails;
-import com.jimline.report.domain.Report;
 import com.jimline.report.domain.ReportStatus;
 import com.jimline.report.dto.ReportRequest;
 import com.jimline.report.dto.ReportResponse;
@@ -60,7 +59,7 @@ public class ReportController {
     }
 
     // 2. 제재 승인 (처리 완료)
-    @PostMapping("/admin/reports/{reportId}/approve")
+    @PatchMapping("/admin/reports/{reportId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> approveReport(
             @PathVariable("reportId") Long reportId, 
