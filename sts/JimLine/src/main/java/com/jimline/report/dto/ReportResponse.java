@@ -13,6 +13,7 @@ public record ReportResponse(
 	    String reportedUserName,
 	    String reason,
 	    String content,
+	    String adminComment,
 		PenaltyType penalty,
 	    ReportStatus status,
 	    LocalDateTime banUntil, // 제재가 있다면 언제까지인지

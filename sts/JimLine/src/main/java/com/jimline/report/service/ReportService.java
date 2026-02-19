@@ -94,6 +94,7 @@ public class ReportService {
                     report.getReported().getUserName(),
                     report.getReason(),
                     report.getContent(),
+                    report.getAdminComment(),
                     report.getPenalty(),
                     report.getStatus(),
                     report.getReported().getBanUntil(), // 피신고자 제재 상태
@@ -115,6 +116,7 @@ public class ReportService {
                 report.getReported().getUserName(),
         	    report.getReason(),
         	    report.getContent(),
+        	    report.getAdminComment(),
                 report.getPenalty(),
         	    report.getStatus(),
         	    report.getReported().getBanUntil(),
@@ -135,7 +137,8 @@ public class ReportService {
                     report.getReported().getUserName(),
                     report.getReason(),
                     report.getContent(),
-                        report.getPenalty(),
+                    report.getAdminComment(),
+                    report.getPenalty(),
                     report.getStatus(),
                     report.getReported().getBanUntil(),
                     report.getCreateAt()
@@ -151,22 +154,16 @@ public class ReportService {
                 .map(report -> new ReportResponse(
                         report.getId(),
 
-                        // 신고자 정보 (User 엔티티에 있는 Getter 이름에 맞게 살짝 수정될 수 있습니다)
                         report.getReporter().getUserId(),   // 예: String 타입의 아이디
                         report.getReporter().getUserName(), // 예: 이름 또는 닉네임
-
-                        // 피신고자 정보
                         report.getReported().getUserId(),
                         report.getReported().getUserName(),
-
-                        // 신고 내용 및 상태
                         report.getReason(),
                         report.getContent(),
+                        report.getAdminComment(),
                         report.getPenalty(),
                         report.getStatus(),
                         report.getEndDate(),
-
-                        // 생성일 (엔티티의 변수명 createAt 에 맞춘 Getter 사용)
                         report.getCreateAt()
                 ))
                 .collect(Collectors.toList());
