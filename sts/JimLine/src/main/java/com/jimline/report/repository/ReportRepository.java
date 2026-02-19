@@ -22,4 +22,6 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     List<Report> findByStatus(ReportStatus status);
 
     List<Report> findByReporter_UserIdOrderByCreateAtDesc(String userId);
+
+    List<Report> findByStatusAndEndDateGreaterThan(ReportStatus reportStatus, LocalDateTime now);
 }
