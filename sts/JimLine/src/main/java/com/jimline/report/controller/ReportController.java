@@ -2,6 +2,7 @@ package com.jimline.report.controller;
 
 import java.util.List;
 
+import com.jimline.user.dto.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -76,5 +77,12 @@ public class ReportController {
             @RequestBody SanctionRequest request) {
         reportService.processReport(reportId, request, ReportStatus.REJECTED);
         return ResponseEntity.ok("신고가 반려되었습니다.");
+    }
+
+    // 4. ban List
+    @GetMapping("/admin/reports/users/banned")
+    public ResponseEntity<List<ReportResponse>> getBanUser() {
+        List<ReportResponse> responses = reportService.getBannedUsers();
+        return ResponseEntity.ok(responses);
     }
 }
