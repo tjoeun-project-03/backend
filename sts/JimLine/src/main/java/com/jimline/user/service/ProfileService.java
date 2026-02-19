@@ -1,5 +1,6 @@
 package com.jimline.user.service;
 
+import com.jimline.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import com.jimline.user.domain.User;
@@ -12,12 +13,16 @@ import com.jimline.user.repository.ShipperRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
 
     private final CarrierRepository carrierRepository;
     private final ShipperRepository shipperRepository;
+    private final UserRepository userRepository;
     // UserRepository는 이미 있다고 가정합니다.
 
     public CarrierResponse getCarrierDetail(User user) {

@@ -6,9 +6,11 @@ import com.jimline.user.domain.User;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Builder
+@ToString
 public class UserResponse {
     private String userId;
     private LocalDateTime banned;      // 정지 여부
