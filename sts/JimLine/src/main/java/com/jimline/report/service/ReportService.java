@@ -65,12 +65,14 @@ public class ReportService {
             // 영구 정지 (9999년까지)
             banUntil = LocalDateTime.MAX;
             report.setPenalty(PenaltyType.PERMANENT_BAN);
-        } else if (request.penaltyDays() > 0) {
+        } else if (request.penaltyDays() == 3 || request.penaltyDays() == 7) {
             banUntil = LocalDateTime.now().plusDays(request.penaltyDays());
             if(request.penaltyDays() == 3) report.setPenalty(PenaltyType.SUSPENSION_3);
             else if(request.penaltyDays() == 7) report.setPenalty(PenaltyType.SUSPENSION_7);
         } else if (request.penaltyDays() == 0) {
             report.setPenalty(PenaltyType.WARNING);
+        } else if (request.penaltyDays() == 9999) {
+        	report.setPenalty(PenaltyType.NONE);
         }
 
         // 유저 정보 업데이트 (User 엔티티에 banUntil 필드가 있어야 함)
@@ -149,13 +151,17 @@ public class ReportService {
     @Transactional
     public List<ReportResponse> getBannedUsers() {
         LocalDateTime now = LocalDateTime.now();
-        List<Report> activeBanReports = reportRepository.findByStatusAndEndDateGreaterThan(ReportStatus.PROCESSED, now);
+        List<Report> activeBanReports = reportRepository.findActiveBansAndWarnings(
+                ReportStatus.PROCESSED, 
+                now, 
+                PenaltyType.WARNING
+        );
+        System.out.println(activeBanReports);
         return activeBanReports.stream()
                 .map(report -> new ReportResponse(
                         report.getId(),
-
-                        report.getReporter().getUserId(),   // 예: String 타입의 아이디
-                        report.getReporter().getUserName(), // 예: 이름 또는 닉네임
+                        report.getReporter().getUserId(),   
+                        report.getReporter().getUserName(), 
                         report.getReported().getUserId(),
                         report.getReported().getUserName(),
                         report.getReason(),
