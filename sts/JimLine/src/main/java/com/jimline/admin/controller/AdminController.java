@@ -47,19 +47,20 @@ public class AdminController {
         return ResponseEntity.ok("차주 승인이 완료되었습니다.");
     }
     
+    // 차주 가입신청 거절
     @DeleteMapping("/{carrierId}/reject")
     public ResponseEntity<Void> rejectCarrier(@PathVariable("carrierId") String carrierId) {
         adminService.rejectCarrier(carrierId);
         return ResponseEntity.noContent().build();
     }
     
-    // 현재 설정값 조회 (페이지 로드 시)
+    // 현재 요율 설정값 조회 (페이지 로드 시)
     @GetMapping("/pricing")
     public ResponseEntity<Pricing> getPricing() {
         return ResponseEntity.ok(pricingService.getCurrentPolicy());
     }
     
-    // 설정값 저장
+    // 요율 설정값 저장
     @PostMapping("/pricing")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updatePricing(@RequestBody PricingRequest request) {

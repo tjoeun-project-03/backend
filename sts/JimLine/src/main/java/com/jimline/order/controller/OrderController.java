@@ -97,7 +97,7 @@ public class OrderController {
         return ResponseEntity.ok("배송이 시작되었습니다.");
     }
     
-    // 배송 완료 (QR 스캔 대용 - invoiceNo 검증)
+    // 배송 완료 (QR 스캔 대용 - 추후 invoiceNo 검증으로 수정)
     @PostMapping("/{orderId}/complete")
     @PreAuthorize("hasRole('CARRIER')")
     public ResponseEntity<String> completeOrder(

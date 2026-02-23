@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.jimline.auth.dto.TokenResponse;
 import com.jimline.global.security.CustomUserDetails;
 import com.jimline.global.service.CustomUserDetailsService;
 
@@ -27,34 +28,49 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessTokenValidity;
+    private final long refreshTokenValidity;
     private final CustomUserDetailsService customUserDetailsService;
 
     public JwtTokenProvider(
             @Value("${jimline.jwt.secret}") String secretKey,
             @Value("${jimline.jwt.access-exp-seconds}") long accessTokenValidity,
+            @Value("${jimline.jwt.refresh-exp-seconds}") long refreshTokenValidity,
             CustomUserDetailsService customUserDetailsService) {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidity = accessTokenValidity * 1000; // 초 단위를 밀리초로 변환
+        this.refreshTokenValidity = refreshTokenValidity * 1000;
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    // 토큰 생성 및 검증 로직은 이전과 동일 (key와 accessTokenValidity 변수 사용)
-    public String createToken(Authentication authentication) {
-    	CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String userId = String.valueOf(userDetails.getUser().getUserId()); // ID 추출
+    public TokenResponse generateTokenDto(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = userDetails.getUser().getUserId();
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValidity);
-
-        return Jwts.builder()
-                .setSubject(userId) // Subject에 ID 저장
+        
+        // 1. Access Token 생성 (기존 로직 유지)
+        String accessToken = Jwts.builder()
+                .subject(userId)
                 .claim("auth", authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.joining(",")))
+                .expiration(new Date(now + accessTokenValidity))
                 .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
                 .compact();
+
+        // 2. Refresh Token 생성 (권한 정보 없이 만료일만 길게)
+        String refreshToken = Jwts.builder()
+                .subject(userId)
+                .expiration(new Date(now + refreshTokenValidity))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        return TokenResponse.builder()
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     // 2. 토큰을 복호화하여 권한 정보 가져오기
@@ -88,5 +104,14 @@ public class JwtTokenProvider {
             log.info("유효하지 않은 JWT 토큰: {}", e.getMessage());
         }
         return false;
+    }
+    
+    public String getUserId(String token) {
+        return Jwts.parser()
+                .verifyWith((javax.crypto.SecretKey) key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 }

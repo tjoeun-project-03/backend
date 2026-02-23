@@ -30,7 +30,7 @@ public class CustomUserDetails implements UserDetails {
     public String getPassword() { return user.getUserPw(); }
 
     @Override
-    public String getUsername() { return user.getEmail(); } // 또는 userId
+    public String getUsername() { return user.getUserId(); } // 또는 userId
 
     @Override
     public boolean isAccountNonExpired() { return true; }
