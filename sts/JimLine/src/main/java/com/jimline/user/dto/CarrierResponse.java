@@ -28,7 +28,7 @@ public class CarrierResponse {
                 .carType(carrier.getCarType() != null ? carrier.getCarType().name() : null)
                 .freezer(carrier.getFreezer())
                 .license(carrier.getLicense())
-                .rating(carrier.getRating())
+                .rating(carrier.getAverageRating())
                 .build();
     }
 }

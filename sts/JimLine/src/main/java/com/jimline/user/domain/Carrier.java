@@ -38,8 +38,16 @@ public class Carrier {
     private String license;
     private Integer freezer;
     private Integer accepted; // 승인 여부 (0:대기, 1:승인)
-    private Double rating;
     private String car;
+    
+    private double averageRating = 0.0;
+    private int reviewCount = 0;
+
+    public void updateRating(double newRating) {
+        double totalScore = (this.averageRating * this.reviewCount) + newRating;
+        this.reviewCount++;
+        this.averageRating = Math.round((totalScore / this.reviewCount) * 10) / 10.0;
+    }
     
 	public void approve() {
 		this.accepted = 1;
