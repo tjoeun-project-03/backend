@@ -28,4 +28,13 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             @Param("now") LocalDateTime now, 
             @Param("warningType") PenaltyType warningType
     );
+    
+    @Query("SELECT r FROM Report r " +
+    	       "WHERE r.reported.userId = :userId " +
+    	       "AND r.status <> :excludeStatus " +
+    	       "AND r.status IS NOT NULL")
+    	List<Report> findSanctionsByTargetUserId(
+    	    @Param("userId") String userId, 
+    	    @Param("excludeStatus") ReportStatus excludeStatus
+    	);
 }

@@ -15,6 +15,6 @@ public class InvoiceGenerator {
     public String generateInvoiceNo() {
         String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
         String randomPart = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-        return "INV-" + datePart + "-" + randomPart;
+        return "JIM-" + datePart + "-" + randomPart;
     }
 }

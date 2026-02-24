@@ -1,19 +1,20 @@
 package com.jimline.report.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.jimline.report.domain.PenaltyType;
-import com.jimline.user.dto.UserResponse;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.jimline.report.domain.PenaltyType;
 import com.jimline.report.domain.Report;
 import com.jimline.report.domain.ReportStatus;
 import com.jimline.report.dto.ReportRequest;
 import com.jimline.report.dto.ReportResponse;
 import com.jimline.report.dto.SanctionRequest;
+import com.jimline.report.dto.SanctionResponse;
 import com.jimline.report.repository.ReportRepository;
 import com.jimline.user.domain.User;
 import com.jimline.user.repository.UserRepository;
@@ -172,6 +173,14 @@ public class ReportService {
                         report.getEndDate(),
                         report.getCreateAt()
                 ))
+                .collect(Collectors.toList());
+    }
+    
+    public List<SanctionResponse> getUserSanctionHistory(String userId) {
+        // REJECTED 상태만 제외하고 조회
+        return reportRepository.findSanctionsByTargetUserId(userId, ReportStatus.REJECTED)
+                .stream()
+                .map(SanctionResponse::from)
                 .collect(Collectors.toList());
     }
 }

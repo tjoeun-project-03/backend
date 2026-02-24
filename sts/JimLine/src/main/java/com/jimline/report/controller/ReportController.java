@@ -18,6 +18,7 @@ import com.jimline.report.domain.ReportStatus;
 import com.jimline.report.dto.ReportRequest;
 import com.jimline.report.dto.ReportResponse;
 import com.jimline.report.dto.SanctionRequest;
+import com.jimline.report.dto.SanctionResponse;
 import com.jimline.report.service.ReportService;
 
 import lombok.RequiredArgsConstructor;
@@ -83,5 +84,14 @@ public class ReportController {
     public ResponseEntity<List<ReportResponse>> getBanUser() {
         List<ReportResponse> responses = reportService.getBannedUsers();
         return ResponseEntity.ok(responses);
+    }
+    
+    // 5. 특정 유저의 제재 내역 조회 (관리자용)
+    // status가 NONE이거나 NULL인 것은 제외
+    @GetMapping("/admin/users/{userId}/sanctions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<SanctionResponse>> getUserSanctionHistory(@PathVariable("userId") String userId) {
+        List<SanctionResponse> history = reportService.getUserSanctionHistory(userId);
+        return ResponseEntity.ok(history);
     }
 }

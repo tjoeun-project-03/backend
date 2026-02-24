@@ -1,6 +1,7 @@
 package com.jimline.user.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,10 +16,7 @@ import com.jimline.user.dto.UserResponse;
 import com.jimline.user.service.ProfileService;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
-import static java.rmi.server.LogStream.log;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -45,5 +43,11 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(profileService.getProfile(userDetails.getUser()));
+    }
+    
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        return ResponseEntity.ok(profileService.getAllUsers());
     }
 }
