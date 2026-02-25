@@ -35,7 +35,11 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
+    
+    private String zipcode;
+    private String address;
+    @Column(name = "detail_address")
+    private String detailAddress;
     private String phone;
 
     @Enumerated(EnumType.STRING) // 문자열 그대로 저장 (권장)

@@ -46,13 +46,11 @@ public class AuthService {
         }
     	
         // 공통 유저 정보 생성 및 저장
-        User user = saveUser(dto.userId(), dto.userPw(), dto.userName(), dto.email(), dto.corpReg(), dto.phone(), UserRole.SHIPPER);
+        User user = saveUser(dto.userId(), dto.userPw(), dto.userName(), dto.email(), dto.corpReg(), dto.phone(), UserRole.SHIPPER, dto.zipcode(), dto.address(), dto.detailAddress());
 
         // 화주 상세 정보 연결 (Builder 패턴 사용 시)
         Shipper shipper = Shipper.builder()
-                .user(user) // @MapsId에 의해 이 user의 ID가 Shipper의 PK가 됨
-                .companyName(dto.companyName())
-                .representative(dto.representative())
+                .user(user)
                 .build();
         
         shipperRepository.save(shipper);
@@ -67,7 +65,7 @@ public class AuthService {
         }
     	
         // 공통 유저 정보 생성 및 저장
-        User user = saveUser(dto.userId(), dto.userPw(), dto.userName(), dto.email(), dto.corpReg(), dto.phone(), UserRole.CARRIER);
+        User user = saveUser(dto.userId(), dto.userPw(), dto.userName(), dto.email(), dto.corpReg(), dto.phone(), UserRole.CARRIER, dto.zipcode(), dto.address(), dto.detailAddress());
 
         // 차주 상세 정보 연결
         Carrier carrier = Carrier.builder()
@@ -85,7 +83,7 @@ public class AuthService {
     }
     
     // 공통 유저 저장 로직 (중복 제거)
-    private User saveUser(String id, String pw, String name, String email, String corpReg, String phone, UserRole role) {
+    private User saveUser(String id, String pw, String name, String email, String corpReg, String phone, UserRole role, String zipcode, String address, String detailAddress) {
         User user = User.builder()
                 .userId(id)
                 .userPw(passwordEncoder.encode(pw))
@@ -94,6 +92,9 @@ public class AuthService {
                 .corpReg(corpReg)
                 .phone(phone)
                 .role(role)
+                .zipcode(zipcode)
+                .address(address)
+                .detailAddress(detailAddress)
                 .build();
         return userRepository.save(user);
     }

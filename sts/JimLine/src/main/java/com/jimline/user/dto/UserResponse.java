@@ -19,6 +19,9 @@ public class UserResponse {
     private String phone;
     private String role;
     private String userName;
+    private String zipcode;
+    private String address;
+    private String detailAddress;
     private LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
@@ -31,6 +34,9 @@ public class UserResponse {
                 .role(user.getRole().name())
                 .userName(user.getUserName())
                 .createdAt(user.getCreatedAt())
+                .zipcode(user.getZipcode())
+                .address(user.getAddress())
+                .detailAddress(user.getDetailAddress())
                 .build();
     }
 }

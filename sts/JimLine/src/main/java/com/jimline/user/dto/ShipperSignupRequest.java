@@ -7,7 +7,7 @@ public record ShipperSignupRequest(
 	    String email,
 	    String corpReg,
 	    String phone,
-	    
-	    String companyName,
-	    String representative
+	    String zipcode,
+	    String address,
+	    String detailAddress
 	) {}

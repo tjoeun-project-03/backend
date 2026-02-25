@@ -9,6 +9,9 @@ public record CarrierSignupRequest(
 	    String email,
 	    String corpReg,
 	    String phone,
+	    String zipcode,
+	    String address,
+	    String detailAddress,
 	    
 	    String car, 
 	    String carNum, 
