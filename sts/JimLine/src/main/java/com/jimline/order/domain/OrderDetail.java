@@ -34,6 +34,10 @@ public class OrderDetail {
     private String departure;        // 출발지 주소
     private String arrival;          // 도착지 주소
     private Integer freezer;         // 냉동 여부 (0: 일반, 1: 냉동)
+    private String startLat;
+    private String startLng;
+    private String endLat;
+    private String endLng;
 
     // 연관관계 편의 메서드
     public void setOrder(Order order) {

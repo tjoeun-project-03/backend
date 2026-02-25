@@ -29,6 +29,10 @@ public class OrderCreateRequest {
     private String clientNote;
     private double distance;
     private int surCharge;
+    private String startLat;
+    private String startLng;
+    private String endLat;
+    private String endLng;
 
     public Order toEntity(String invoiceNo, String shipperId) {
         // 상세 엔티티 생성
@@ -44,6 +48,10 @@ public class OrderCreateRequest {
                 .carType(carType)
                 .clientNote(clientNote)
                 .distance(distance)
+                .startLat(startLat)
+                .startLng(startLng)
+                .endLat(endLat)
+                .endLng(endLng)
                 .build();
 
         // 현재 시각(2026-02-20) 기준으로 도착 예정 시간(ETA) 계산

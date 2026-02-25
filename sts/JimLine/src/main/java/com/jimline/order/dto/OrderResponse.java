@@ -30,6 +30,10 @@ public class OrderResponse {
     private String clientNote;
     private Double distance;
     private Integer freezer;
+    private String startLat;
+    private String startLng;
+    private String endLat;
+    private String endLng;
 
     // 시간 관련 알람 정보
     private LocalDateTime eta;
@@ -66,6 +70,10 @@ public class OrderResponse {
                 // 시간 알람
                 .eta(order.getEta())
                 .remainingTime(timeLeft)
+                .startLat(order.getOrderDetail().getStartLat())
+                .startLng(order.getOrderDetail().getStartLng())
+                .endLat(order.getOrderDetail().getEndLat())
+                .endLng(order.getOrderDetail().getEndLat())
                 .build();
     }
 }
