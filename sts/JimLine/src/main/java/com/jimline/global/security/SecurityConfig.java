@@ -19,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.jimline.global.auth.JwtAuthenticationFilter;
 import com.jimline.global.auth.JwtTokenProvider;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -46,7 +47,14 @@ public class SecurityConfig {
         .sessionManagement(session -> 
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
-
+        .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    // 인증 실패 시 401을 반환하여 Flutter의 Refresh 로직을 깨움
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"error\": \"UNAUTHORIZED\", \"message\": \"인증이 필요합니다.\"}");
+                })
+            )
         // 3. 권한 설정
         .authorizeHttpRequests(auth -> auth
     		.requestMatchers(

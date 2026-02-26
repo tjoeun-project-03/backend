@@ -22,17 +22,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         String token = resolveToken(request);
-        // 로그 추가: 요청 경로와 토큰 존재 여부 확인
-        System.out.println("Request URI: " + request.getRequestURI());
-
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println("인증 성공: " + authentication.getName() + ", 권한: " + authentication.getAuthorities());
-        } else {
-            System.out.println("인증 실패 또는 토큰 없음");
+        
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            // 정상 토큰이거나 토큰이 없는 경우(GUEST)는 다음 필터로
+            filterChain.doFilter(request, response);
+            
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // 🚀 토큰이 만료된 경우: 401 에러를 응답하고 필터 체인을 중단!
+            System.out.println("토큰 만료 예외 발생: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"TOKEN_EXPIRED\", \"message\": \"JWT token expired\"}");
+        } catch (Exception e) {
+            // 기타 인증 에러
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"INVALID_TOKEN\"}");
         }
-        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {

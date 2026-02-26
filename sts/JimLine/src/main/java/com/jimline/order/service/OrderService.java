@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
-import com.jimline.global.util.InvoiceGenerator;
 import com.jimline.order.domain.Order;
 import com.jimline.order.domain.OrderCancellation;
+import com.jimline.order.domain.OrderDetail;
 import com.jimline.order.domain.OrderLog;
 import com.jimline.order.domain.OrderStatus;
 import com.jimline.order.dto.OrderCancelRequest;
@@ -29,22 +28,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderLogRepository orderLogRepository;
     private final OrderCancellationRepository cancellationRepository;
-    private final InvoiceGenerator invoiceGenerator;
+    private final TossPaymentService tossPaymentService;
     
-    //주문생성
-    @Transactional
-    public Long createOrder(OrderCreateRequest request, String userId) {
-    	String invoiceNo = invoiceGenerator.generateInvoiceNo();
-    	
-    	// 중복 체크 (선택 사항이지만 안전함)
-        while(orderRepository.existsByInvoiceNo(invoiceNo)) {
-            invoiceNo = invoiceGenerator.generateInvoiceNo();
-        }
-        Order order = request.toEntity(invoiceNo, userId);
-        Order savedOrder = orderRepository.save(order);
-        
-        return savedOrder.getOrderId();
-    }
     
     // id조회
     @Transactional
@@ -154,4 +139,55 @@ public class OrderService {
 		order.startDeliveryTime();
 		saveLog(order, OrderStatus.DEPARTED);
 	}
+	
+	// 주문생성
+	public Order processOrderAndPayment(OrderCreateRequest dto, String shipperId) {
+        // 1. 토스 페이먼츠 결제 승인 요청
+        boolean isApproved = tossPaymentService.confirmPayment(
+                dto.getPaymentKey(),
+                dto.getInvoiceNo(),
+                dto.getPrice()
+        );
+
+        if (!isApproved) {
+            throw new RuntimeException("결제 승인에 실패했습니다.");
+        }
+
+        // 2. Order 엔티티 생성
+        Order order = Order.builder()
+                .shipperId(shipperId)
+                .invoiceNo(dto.getInvoiceNo())
+                .paymentKey(dto.getPaymentKey())
+                .price(dto.getPrice())
+                .created(LocalDateTime.now())
+                .payTime(LocalDateTime.now())
+                .payStatus(1) // 결제 완료
+                .currentStatus(OrderStatus.CREATED)
+                .build();
+
+        // 3. OrderDetail 엔티티 생성 (Order와 연결)
+        OrderDetail detail = OrderDetail.builder()
+                .order(order) // 연관관계 설정
+                .consigneeName(dto.getConsigneeName())
+                .consigneeContact(dto.getConsigneeContact())
+                .distance(dto.getDistance())
+                .duration(dto.getDuration())
+                .carType(dto.getCarType())
+                .weight(dto.getWeight())
+                .content(dto.getContent())
+                .departure(dto.getDeparture())
+                .arrival(dto.getArrival())
+                .startLat(dto.getStartLat())
+                .startLng(dto.getStartLng())
+                .endLat(dto.getEndLat())
+                .endLng(dto.getEndLng())
+                .freezer(0) // 기본값 예시
+                .build();
+
+        // 4. Order에 Detail 세팅 (편의 메서드 활용)
+        order.setOrderDetail(detail);
+
+        // 5. 저장 (CascadeType.ALL에 의해 detail도 함께 저장됨)
+        return orderRepository.save(order);
+    }
 }

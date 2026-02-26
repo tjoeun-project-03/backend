@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jimline.global.security.CustomUserDetails;
+import com.jimline.global.util.InvoiceGenerator;
 import com.jimline.order.domain.Order;
 import com.jimline.order.domain.OrderStatus;
 import com.jimline.order.dto.OrderCancelRequest;
 import com.jimline.order.dto.OrderCompleteRequest;
 import com.jimline.order.dto.OrderCreateRequest;
 import com.jimline.order.dto.OrderResponse;
+import com.jimline.order.repository.OrderRepository;
 import com.jimline.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,15 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
-
-    //주문생성
-    @PostMapping
-    public ResponseEntity<Long> createOrder(
-    		@RequestBody OrderCreateRequest request,
-    		@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long orderId = orderService.createOrder(request, userDetails.getUser().getUserId());
-        return ResponseEntity.ok(orderId);
-    }
+    private final OrderRepository orderRepository;
+    private final InvoiceGenerator invoiceGenerator;
     
     //기본키(주문id)조회
     @GetMapping("/id/{orderId}")
@@ -107,5 +102,28 @@ public class OrderController {
         
         orderService.completeOrderWithQr(orderId, request);
         return ResponseEntity.ok("QR 인증 완료: 배송이 성공적으로 마무리되었습니다.");
+    }
+    
+    
+    //주문생성
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmOrder(@RequestBody OrderCreateRequest dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+           
+            Order savedOrder = orderService.processOrderAndPayment(dto, userDetails.getUser().getUserId());
+            return ResponseEntity.ok(savedOrder.getOrderId());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/generate-invoice")
+    public ResponseEntity<String> getNewInvoiceNo() {
+        String invoiceNo = invoiceGenerator.generateInvoiceNo();
+        // DB에 이미 있는지 체크
+        while(orderRepository.existsByInvoiceNo(invoiceNo)) {
+            invoiceNo = invoiceGenerator.generateInvoiceNo();
+        }
+        return ResponseEntity.ok(invoiceNo);
     }
 }

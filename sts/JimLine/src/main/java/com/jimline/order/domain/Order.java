@@ -38,6 +38,7 @@ public class Order {
     private LocalDateTime atd;
     private LocalDateTime eta;
     private String invoiceNo;
+    private String paymentKey;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus currentStatus;
