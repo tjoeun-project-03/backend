@@ -12,4 +12,5 @@ public class TokenResponse {
  private String accessToken;
  private String refreshToken;
  private Long accessTokenExpiresIn; // 선택사항: 만료 시간
+ private String role; // 역할 정보 필드 추가 
 }
