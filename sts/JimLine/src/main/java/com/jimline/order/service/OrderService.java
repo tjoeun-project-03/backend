@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+
 import com.jimline.order.domain.Order;
 import com.jimline.order.domain.OrderCancellation;
 import com.jimline.order.domain.OrderDetail;
@@ -17,6 +18,7 @@ import com.jimline.order.dto.OrderResponse;
 import com.jimline.order.repository.OrderCancellationRepository;
 import com.jimline.order.repository.OrderLogRepository;
 import com.jimline.order.repository.OrderRepository;
+import com.jimline.user.dto.ShipmentSummary;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -189,5 +191,9 @@ public class OrderService {
 
         // 5. 저장 (CascadeType.ALL에 의해 detail도 함께 저장됨)
         return orderRepository.save(order);
+    }
+	
+	public ShipmentSummary getShipperOrderSummary(String shipperId) {
+        return orderRepository.getOrderSummaryByShipperId(shipperId);
     }
 }

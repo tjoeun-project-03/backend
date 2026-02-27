@@ -73,7 +73,7 @@ public class OrderResponse {
                 .startLat(order.getOrderDetail().getStartLat())
                 .startLng(order.getOrderDetail().getStartLng())
                 .endLat(order.getOrderDetail().getEndLat())
-                .endLng(order.getOrderDetail().getEndLat())
+                .endLng(order.getOrderDetail().getEndLng())
                 .build();
     }
 }

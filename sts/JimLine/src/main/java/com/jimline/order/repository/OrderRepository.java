@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.jimline.order.domain.Order;
 import com.jimline.order.domain.OrderStatus;
+import com.jimline.user.dto.ShipmentSummary;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     // 송장 번호로 주문 찾기 같은 사용자 정의 쿼리 가능
@@ -37,4 +38,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	        @Param("year") int year, 
 	        @Param("month") int month
 	    );
+	
+	@Query("SELECT new com.jimline.user.dto.ShipmentSummary(" +
+	           "COUNT(CASE WHEN o.currentStatus = com.jimline.order.domain.OrderStatus.CREATED THEN 1 END), " +
+	           "COUNT(CASE WHEN o.currentStatus = com.jimline.order.domain.OrderStatus.ACCEPTED THEN 1 END), " +
+	           "COUNT(CASE WHEN o.currentStatus IN (com.jimline.order.domain.OrderStatus.COMPLETED, com.jimline.order.domain.OrderStatus.CANCELED) THEN 1 END)) " +
+	           "FROM Order o WHERE o.shipperId = :shipperId")
+	    ShipmentSummary getOrderSummaryByShipperId(@Param("shipperId") String shipperId);
 }

@@ -24,6 +24,7 @@ import com.jimline.order.dto.OrderCreateRequest;
 import com.jimline.order.dto.OrderResponse;
 import com.jimline.order.repository.OrderRepository;
 import com.jimline.order.service.OrderService;
+import com.jimline.user.dto.ShipmentSummary;
 
 import lombok.RequiredArgsConstructor;
 
@@ -125,5 +126,12 @@ public class OrderController {
             invoiceNo = invoiceGenerator.generateInvoiceNo();
         }
         return ResponseEntity.ok(invoiceNo);
+    }
+    
+    @GetMapping("/summary")
+    public ResponseEntity<ShipmentSummary> getMyOrderSummary(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        // principal.getName()이 로그인 시 사용한 ID(shipperId)라고 가정
+        String shipperId = userDetails.getUser().getUserId(); 
+        return ResponseEntity.ok(orderService.getShipperOrderSummary(shipperId));
     }
 }
