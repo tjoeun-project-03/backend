@@ -11,7 +11,8 @@ public class OrderCreateRequest {
     // 결제 필수 정보
     private String paymentKey;
     private String invoiceNo; // 토스의 orderId와 매핑
-    private Integer price;    // 토스의 amount와 매핑
+    private Integer price;    // 토스의 amount와 매핑 
+    private Integer surcharge; // 추가: 할증료 데이터를 받기 위한 필드 
 
     // 주문 상세 정보
     private String consigneeName;

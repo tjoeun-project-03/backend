@@ -134,4 +134,11 @@ public class OrderController {
         String shipperId = userDetails.getUser().getUserId(); 
         return ResponseEntity.ok(orderService.getShipperOrderSummary(shipperId));
     }
+    
+    @GetMapping("/my")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String shipperId = userDetails.getUser().getUserId();
+        // 화주의 모든 주문 목록을 반환하는 서비스 호출
+        return ResponseEntity.ok(orderService.getOrdersByShipper(shipperId)); 
+    }
 }

@@ -17,18 +17,21 @@ public class OrderResponse {
     private Long orderId;
     private String invoiceNo;
     private OrderStatus status;
+    private String carrierName;
     private LocalDateTime created;
     private Integer price;
 
     // 주문 상세 (OrderDetail 정보 통합)
     private String departure;
     private String arrival;
+    private String carType; // 추가
     private String consigneeName;
     private String consigneeContact;
     private Double weight;
     private String content;
     private String clientNote;
     private Double distance;
+    private Integer duration; // 추가 
     private Integer freezer;
     private String startLat;
     private String startLng;
@@ -41,6 +44,8 @@ public class OrderResponse {
 
     public static OrderResponse from(Order order) {
         OrderDetail detail = order.getOrderDetail();
+        
+        String cName = (order.getCarrierId() != null) ? order.getCarrierId() : "기사 배정 중";
         
         // 남은 시간 계산 (현재 시각: 2026-02-20 11:14)
         String timeLeft = "정보 없음";
@@ -55,6 +60,7 @@ public class OrderResponse {
                 .orderId(order.getOrderId())
                 .invoiceNo(order.getInvoiceNo())
                 .status(order.getCurrentStatus())
+                .carrierName(cName) // 기사님 id 추가 
                 .created(order.getCreated())
                 .price(order.getPrice())
                 // 상세 정보 매핑
@@ -64,8 +70,12 @@ public class OrderResponse {
                 .consigneeContact(detail.getConsigneeContact())
                 .weight(detail.getWeight())
                 .content(detail.getContent())
+                // 차종 정보 추가
+                .carType(detail.getCarType() != null ? detail.getCarType() : "정보 없음")
                 .clientNote(detail.getClientNote())
                 .distance(detail.getDistance())
+                // 걸리는 시간 추가
+                .duration(detail.getDuration())
                 .freezer(detail.getFreezer())
                 // 시간 알람
                 .eta(order.getEta())

@@ -2,6 +2,7 @@ package com.jimline.order.repository;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 	boolean existsByInvoiceNo(String invoiceNo);
 
-	Optional<Order> findByCurrentStatus(OrderStatus status);
+	// list로 변경해 어려개의 오더를 모두 받아오게 수정함
+	// Optional<Order> findByCurrentStatus(OrderStatus status);
+	List<Order> findByCurrentStatus(OrderStatus status);
+	
+	// 화주의 ID로 주문 목록을 최신순으로 가져오는 메서드 추가
+	List<Order> findByShipperIdOrderByCreatedDesc(String shipperId);
 	
 	// 차주 통계용 쿼리
 	@Query(value = "SELECT " +

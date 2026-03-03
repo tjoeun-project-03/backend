@@ -161,6 +161,7 @@ public class OrderService {
                 .invoiceNo(dto.getInvoiceNo())
                 .paymentKey(dto.getPaymentKey())
                 .price(dto.getPrice())
+                .surcharge(dto.getSurcharge()) // 할증료 추가 
                 .created(LocalDateTime.now())
                 .payTime(LocalDateTime.now())
                 .payStatus(1) // 결제 완료
@@ -196,4 +197,12 @@ public class OrderService {
 	public ShipmentSummary getShipperOrderSummary(String shipperId) {
         return orderRepository.getOrderSummaryByShipperId(shipperId);
     }
+	
+	// 컨트롤러에서 호출하는 메서드 구현
+	public List<OrderResponse> getOrdersByShipper(String shipperId) {
+	    return orderRepository.findByShipperIdOrderByCreatedDesc(shipperId)
+	            .stream()
+	            .map(OrderResponse::from)
+	            .toList();
+	}
 }
