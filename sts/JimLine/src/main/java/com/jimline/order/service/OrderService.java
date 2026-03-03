@@ -3,6 +3,7 @@ package com.jimline.order.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import com.jimline.order.domain.OrderStatus;
 import com.jimline.order.dto.OrderCancelRequest;
 import com.jimline.order.dto.OrderCompleteRequest;
 import com.jimline.order.dto.OrderCreateRequest;
+import com.jimline.order.dto.OrderLogResponse;
 import com.jimline.order.dto.OrderResponse;
 import com.jimline.order.repository.OrderCancellationRepository;
 import com.jimline.order.repository.OrderLogRepository;
@@ -198,11 +200,29 @@ public class OrderService {
         return orderRepository.getOrderSummaryByShipperId(shipperId);
     }
 	
-	// 컨트롤러에서 호출하는 메서드 구현
-	public List<OrderResponse> getOrdersByShipper(String shipperId) {
-	    return orderRepository.findByShipperIdOrderByCreatedDesc(shipperId)
+	@Transactional
+	public List<OrderResponse> getOrdersByStatus(String shipperId, List<OrderStatus> statuses) {
+	    // 메서드명을 Repository와 동일하게 수정
+	    return orderRepository.findAllByShipperIdAndCurrentStatusInOrderByCreatedDesc(shipperId, statuses)
 	            .stream()
 	            .map(OrderResponse::from)
-	            .toList();
+	            .collect(Collectors.toList());
 	}
+	
+	@Transactional
+	public List<OrderLogResponse> getOrderTimeline(Long orderId) {
+	    // orderRepository가 아니라 orderLogRepository를 사용해야 합니다!
+	    return orderLogRepository.findAllByOrderOrderIdOrderByUpdateTimeDesc(orderId)
+	            .stream()
+	            .map(OrderLogResponse::from) // 이제 OrderLog를 인자로 받는 from과 매칭됩니다.
+	            .collect(Collectors.toList());
+	}
+	
+	@Transactional
+    public List<OrderResponse> getMyAllOrders(String shipperId) {
+        return orderRepository.findAllByShipperIdOrderByCreatedDesc(shipperId)
+                .stream()
+                .map(OrderResponse::from)
+                .collect(Collectors.toList());
+    }
 }

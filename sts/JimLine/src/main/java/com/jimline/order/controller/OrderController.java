@@ -21,6 +21,7 @@ import com.jimline.order.domain.OrderStatus;
 import com.jimline.order.dto.OrderCancelRequest;
 import com.jimline.order.dto.OrderCompleteRequest;
 import com.jimline.order.dto.OrderCreateRequest;
+import com.jimline.order.dto.OrderLogResponse;
 import com.jimline.order.dto.OrderResponse;
 import com.jimline.order.repository.OrderRepository;
 import com.jimline.order.service.OrderService;
@@ -135,10 +136,22 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getShipperOrderSummary(shipperId));
     }
     
+    @GetMapping("/{orderId}/timeline")
+    public ResponseEntity<List<OrderLogResponse>> getOrderTimeline(@PathVariable("orderId") Long orderId) {
+        List<OrderLogResponse> timeline = orderService.getOrderTimeline(orderId);
+        return ResponseEntity.ok(timeline);
+    }
+    
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String shipperId = userDetails.getUser().getUserId();
-        // 화주의 모든 주문 목록을 반환하는 서비스 호출
-        return ResponseEntity.ok(orderService.getOrdersByShipper(shipperId)); 
+        // 토큰에서 추출한 shipperId 사용
+        return ResponseEntity.ok(orderService.getMyAllOrders(userDetails.getUser().getUserId()));
+    }
+    
+    @GetMapping("/my/filter")
+    public ResponseEntity<List<OrderResponse>> getMyOrdersByStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam List<OrderStatus> statuses) {
+        return ResponseEntity.ok(orderService.getOrdersByStatus(userDetails.getUser().getUserId(), statuses));
     }
 }

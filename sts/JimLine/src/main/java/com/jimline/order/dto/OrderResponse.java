@@ -16,10 +16,11 @@ public class OrderResponse {
     // 주문 기본
     private Long orderId;
     private String invoiceNo;
-    private OrderStatus status;
     private String carrierName;
+    private String status;
     private LocalDateTime created;
     private Integer price;
+    private String carrierId;
 
     // 주문 상세 (OrderDetail 정보 통합)
     private String departure;
@@ -59,10 +60,11 @@ public class OrderResponse {
         return OrderResponse.builder()
                 .orderId(order.getOrderId())
                 .invoiceNo(order.getInvoiceNo())
-                .status(order.getCurrentStatus())
+                .status(order.getCurrentStatus().getDescription())
                 .carrierName(cName) // 기사님 id 추가 
                 .created(order.getCreated())
                 .price(order.getPrice())
+                .carrierId(order.getCarrierId())
                 // 상세 정보 매핑
                 .departure(detail.getDeparture())
                 .arrival(detail.getArrival())

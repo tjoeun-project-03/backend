@@ -1,5 +1,6 @@
 package com.jimline.order.repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
@@ -51,4 +52,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	           "COUNT(CASE WHEN o.currentStatus IN (com.jimline.order.domain.OrderStatus.COMPLETED, com.jimline.order.domain.OrderStatus.CANCELED) THEN 1 END)) " +
 	           "FROM Order o WHERE o.shipperId = :shipperId")
 	    ShipmentSummary getOrderSummaryByShipperId(@Param("shipperId") String shipperId);
+
+	List<Order> findAllByShipperIdAndCurrentStatusInOrderByCreatedDesc(String shipperId, List<OrderStatus> statuses);
+	
+	List<Order> findAllByShipperIdOrderByCreatedDesc(String shipperId);
 }
