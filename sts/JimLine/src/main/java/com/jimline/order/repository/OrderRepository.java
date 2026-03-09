@@ -21,6 +21,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 	// list로 변경해 어려개의 오더를 모두 받아오게 수정함
 	// Optional<Order> findByCurrentStatus(OrderStatus status);
+	@Query("SELECT o FROM Order o WHERE o.currentStatus NOT IN (com.jimline.order.domain.OrderStatus.COMPLETED, com.jimline.order.domain.OrderStatus.CANCELED)")
 	List<Order> findByCurrentStatus(OrderStatus status);
 	
 	// 화주의 ID로 주문 목록을 최신순으로 가져오는 메서드 추가
