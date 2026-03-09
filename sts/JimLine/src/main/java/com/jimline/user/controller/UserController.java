@@ -39,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(profileService.getShipperDetail(userDetails.getUser()));
     }
 
-    // 3. 공용 기본 사용자 프로필 (아이디, 이메일, 이름 등)
+    // 3. 공용 기본 사용자 프로필 (아이디, 이메일, 이름, 주소 등)
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(profileService.getProfile(userDetails.getUser()));

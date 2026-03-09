@@ -63,6 +63,7 @@ public class SecurityConfig {
     		        "/swagger-ui.html"
     		    ).permitAll()
             .requestMatchers("/api/auth/**", "/error").permitAll()      // 회원가입, 로그인은 인증 없이 허용
+            .requestMatchers("/api/orders/available").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN") // 관리자 API는 ADMIN 권한 필수
             .anyRequest().authenticated()                     // 그 외 모든 요청은 인증 필요
         )
