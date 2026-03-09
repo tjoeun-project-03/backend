@@ -22,6 +22,7 @@ public class OrderResponse {
     private LocalDateTime created;
     private Integer price;
     private String carrierId;
+    private String shipperId;
 
     // 주문 상세 (OrderDetail 정보 통합)
     private String departure;
@@ -64,6 +65,8 @@ public class OrderResponse {
                 .created(order.getCreated())
                 .price(order.getPrice())
                 .carrierId(order.getCarrierId())
+                .shipperId(order.getShipperId())
+                
                 // 상세 정보 매핑
                 .departure(detail.getDeparture())
                 .arrival(detail.getArrival())
