@@ -5,12 +5,13 @@ import java.time.LocalDateTime;
 
 import com.jimline.order.domain.Order;
 import com.jimline.order.domain.OrderDetail;
-import com.jimline.order.domain.OrderStatus;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 public class OrderResponse {
     // 주문 기본
@@ -46,8 +47,6 @@ public class OrderResponse {
     public static OrderResponse from(Order order) {
         OrderDetail detail = order.getOrderDetail();
         
-        String cName = (order.getCarrierId() != null) ? order.getCarrierId() : "기사 배정 중";
-        
         // 남은 시간 계산 (현재 시각: 2026-02-20 11:14)
         String timeLeft = "정보 없음";
         if (order.getEta() != null) {
@@ -61,7 +60,7 @@ public class OrderResponse {
                 .orderId(order.getOrderId())
                 .invoiceNo(order.getInvoiceNo())
                 .status(order.getCurrentStatus().getDescription())
-                .carrierName(cName) // 기사님 id 추가 
+                .carrierName(order.getCarrierId()) // 기사님 id 추가 
                 .created(order.getCreated())
                 .price(order.getPrice())
                 .carrierId(order.getCarrierId())

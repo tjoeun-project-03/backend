@@ -21,6 +21,7 @@ import com.jimline.order.repository.OrderCancellationRepository;
 import com.jimline.order.repository.OrderLogRepository;
 import com.jimline.order.repository.OrderRepository;
 import com.jimline.user.dto.ShipmentSummary;
+import com.jimline.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderLogRepository orderLogRepository;
     private final OrderCancellationRepository cancellationRepository;
+    private final UserRepository userRepository;
     private final TossPaymentService tossPaymentService;
     
     
@@ -142,6 +144,7 @@ public class OrderService {
 		Order order = orderRepository.findById(orderId).orElseThrow();
 		order.startDeliveryTime();
 		saveLog(order, OrderStatus.DEPARTED);
+		order.updateStatus(OrderStatus.DEPARTED);
 	}
 	
 	// 주문생성
@@ -220,9 +223,44 @@ public class OrderService {
 	
 	@Transactional
     public List<OrderResponse> getMyAllOrders(String shipperId) {
-        return orderRepository.findAllByShipperIdOrderByCreatedDesc(shipperId)
-                .stream()
-                .map(OrderResponse::from)
-                .collect(Collectors.toList());
+		List<Order> orders = orderRepository.findByShipperId(shipperId);
+	    
+	    return orders.stream().map(order -> {
+	        OrderResponse dto = OrderResponse.from(order);
+	        
+	        // carrierId가 문자열로 저장되어 있다면 해당 ID로 유저를 찾음
+	        if (order.getCarrierId() != null && !order.getCarrierId().isEmpty()) {
+	            userRepository.findById(order.getCarrierId()) // UserRepository 필요
+	                .ifPresent(user -> {
+	                    // OrderResponse에 @Setter가 있거나 빌더를 다시 타야 함
+	                    dto.setCarrierName(user.getUserName()); 
+	                });
+	        }
+	        return dto;
+	    }).collect(Collectors.toList());
     }
+	
+	@Transactional
+	public List<OrderResponse> getMyAllOrders(String userId, String role) {
+	    List<Order> orders;
+	    
+	    // 🚀 역할에 따른 분기 처리
+	    if ("ROLE_CARRIER".equals(role)) {
+	        // 차주라면 본인이 '배차 받은' 오더들을 가져옴
+	        orders = orderRepository.findByCarrierId(userId);
+	    } else {
+	        // 화주라면 본인이 '등록한' 오더들을 가져옴
+	        orders = orderRepository.findByShipperId(userId);
+	    }
+
+	    return orders.stream().map(order -> {
+	        OrderResponse dto = OrderResponse.from(order);
+	        // 기사 이름 설정 로직 (기존 유지)
+	        if (order.getCarrierId() != null) {
+	            userRepository.findById(order.getCarrierId())
+	                .ifPresent(user -> dto.setCarrierName(user.getUserName()));
+	        }
+	        return dto;
+	    }).collect(Collectors.toList());
+	}
 }

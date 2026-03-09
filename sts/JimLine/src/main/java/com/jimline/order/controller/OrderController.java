@@ -142,16 +142,19 @@ public class OrderController {
         return ResponseEntity.ok(timeline);
     }
     
-    @GetMapping("/my")
-    public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 토큰에서 추출한 shipperId 사용
-        return ResponseEntity.ok(orderService.getMyAllOrders(userDetails.getUser().getUserId()));
-    }
-    
     @GetMapping("/my/filter")
     public ResponseEntity<List<OrderResponse>> getMyOrdersByStatus(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam List<OrderStatus> statuses) {
         return ResponseEntity.ok(orderService.getOrdersByStatus(userDetails.getUser().getUserId(), statuses));
+    }
+    
+    @GetMapping("/my")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String userId = userDetails.getUser().getUserId();
+        // 🚀 토큰에 저장된 Role 정보를 가져옴 (예: ROLE_CARRIER, ROLE_SHIPPER)
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        
+        return ResponseEntity.ok(orderService.getMyAllOrders(userId, role));
     }
 }

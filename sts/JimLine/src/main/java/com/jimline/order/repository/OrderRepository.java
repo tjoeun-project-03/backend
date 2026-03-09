@@ -56,4 +56,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	List<Order> findAllByShipperIdAndCurrentStatusInOrderByCreatedDesc(String shipperId, List<OrderStatus> statuses);
 	
 	List<Order> findAllByShipperIdOrderByCreatedDesc(String shipperId);
+
+	List<Order> findByShipperId(String shipperId);
+	
+	List<Order> findByCarrierId(String carrierId);
 }
