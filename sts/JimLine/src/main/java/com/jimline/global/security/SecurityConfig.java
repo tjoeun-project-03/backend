@@ -80,8 +80,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 1. 허용할 Origin (프론트엔드 주소)
-        configuration.addAllowedOrigin("http://localhost:3000"); // 리액트 기본 포트
-        configuration.addAllowedOrigin("http://localhost:5173"); // Vite 기본 포트
+        configuration.addAllowedOrigin("http://jimline.s3-website-us-east-1.amazonaws.com"); // 리액트 기본 포트
         
         // 2. 허용할 HTTP Method
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

@@ -24,9 +24,6 @@ public class OrderDetail {
     private String clientNote;       // 요청 사항
     private Double distance;         // 배송 거리
     
-    @Column(columnDefinition = "json") // DB의 json 타입 대응
-    private String route;            // 경로 데이터
-    
     private Integer duration;        // 예상 소요 시간(분)
     private String carType;          // 차량 종류
     private Double weight;           // 화물 무게
